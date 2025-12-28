@@ -2,131 +2,252 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>FiveM RP Police Report Generator</title>
+<title>RP CAD System</title>
 <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+
 <style>
 body {
-  font-family: Arial, sans-serif;
-  background: #1e1e1e;
-  color: #fff;
   margin: 0;
-  padding: 20px;
+  font-family: "Segoe UI", Arial, sans-serif;
+  background: #1b1f23;
+  color: #e6e6e6;
 }
-.container {
+
+/* LAYOUT */
+.app {
   display: flex;
-  gap: 20px;
+  height: 100vh;
 }
-.form-box, .preview-box {
-  background: #2b2b2b;
-  padding: 20px;
-  border-radius: 8px;
-  width: 50%;
+
+.sidebar {
+  width: 220px;
+  background: #0f1419;
+  padding: 15px;
+  box-sizing: border-box;
 }
-label {
-  display: block;
-  margin-top: 10px;
+
+.sidebar h2 {
+  font-size: 16px;
+  margin-bottom: 15px;
+  text-align: center;
 }
-input, textarea, select, button {
+
+.nav button {
   width: 100%;
-  margin-top: 5px;
-  padding: 8px;
-  border-radius: 4px;
+  margin-bottom: 8px;
+  padding: 10px;
+  background: #1f2933;
   border: none;
+  color: #fff;
+  text-align: left;
+  cursor: pointer;
 }
+
+.nav button:hover {
+  background: #32414d;
+}
+
+.main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.topbar {
+  background: #101820;
+  padding: 10px 15px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 14px;
+}
+
+.content {
+  flex: 1;
+  display: flex;
+  padding: 15px;
+  gap: 15px;
+  box-sizing: border-box;
+}
+
+/* PANELS */
+.panel {
+  background: #242a30;
+  border-radius: 6px;
+  padding: 15px;
+  flex: 1;
+}
+
+.panel h3 {
+  margin-top: 0;
+  font-size: 15px;
+  border-bottom: 1px solid #3a3f44;
+  padding-bottom: 5px;
+}
+
+/* FORMS */
+label {
+  font-size: 12px;
+  margin-top: 10px;
+  display: block;
+}
+
+input, textarea, select {
+  width: 100%;
+  padding: 6px;
+  margin-top: 4px;
+  border: none;
+  border-radius: 4px;
+}
+
 textarea {
   resize: vertical;
 }
-button {
-  background: #3a7afe;
+
+button.action {
+  margin-top: 12px;
+  padding: 10px;
+  background: #2563eb;
   color: white;
-  font-weight: bold;
-  margin-top: 15px;
+  border: none;
+  border-radius: 4px;
   cursor: pointer;
 }
+
+/* REPORT PREVIEW */
 #report {
   background: white;
   color: black;
   padding: 20px;
-  font-size: 14px;
+  font-size: 13px;
 }
-.header {
+
+.report-header {
   text-align: center;
   font-weight: bold;
-  font-size: 18px;
+  font-size: 16px;
   margin-bottom: 10px;
 }
+
 hr {
-  margin: 10px 0;
-}
-.output {
-  margin-top: 10px;
-  word-break: break-all;
+  margin: 8px 0;
 }
 </style>
 </head>
 
 <body>
 
-<h2>FiveM RP Police Report Generator</h2>
+<div class="app">
 
-<div class="container">
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <h2>RP CAD</h2>
+    <div class="nav">
+      <button onclick="setPage('dashboard')">Dashboard</button>
+      <button onclick="setPage('arrest')">Arrest Report</button>
+      <button onclick="setPage('trespass')">Trespass Notice</button>
+      <button onclick="setPage('incident')">Incident Report</button>
+      <button onclick="setPage('uof')">Use of Force</button>
+    </div>
+  </div>
 
-<div class="form-box">
-<label>Report Type</label>
-<select id="type">
-  <option>Arrest Report</option>
-  <option>Trespass Notice</option>
-  <option>Incident Report</option>
-  <option>Use of Force</option>
-</select>
+  <!-- MAIN -->
+  <div class="main">
 
-<label>Officer Name</label>
-<input id="officer">
+    <!-- TOP BAR -->
+    <div class="topbar">
+      <div>
+        Officer: <input id="officer" placeholder="Name" style="width:140px">
+        Badge: <input id="badge" placeholder="#" style="width:80px">
+      </div>
+      <div id="clock"></div>
+    </div>
 
-<label>Badge Number</label>
-<input id="badge">
+    <!-- CONTENT -->
+    <div class="content">
 
-<label>Suspect Name</label>
-<input id="suspect">
+      <!-- FORM PANEL -->
+      <div class="panel">
+        <h3 id="pageTitle">Dashboard</h3>
 
-<label>Location</label>
-<input id="location">
+        <div id="formArea">
+          Select a report type from the left to begin.
+        </div>
 
-<label>Narrative</label>
-<textarea id="narrative" rows="6"></textarea>
+        <button class="action" onclick="generate()">Generate Preview</button>
+        <button class="action" onclick="upload()">Upload to Imgur</button>
+        <div id="link"></div>
+      </div>
 
-<button onclick="generate()">Generate Preview</button>
-<button onclick="upload()">Upload to Imgur</button>
+      <!-- PREVIEW PANEL -->
+      <div class="panel">
+        <h3>Report Preview</h3>
+        <div id="report">
+          <div class="report-header">RP POLICE REPORT</div>
+          <hr>
+          <div id="preview"></div>
+        </div>
+      </div>
 
-<div class="output" id="link"></div>
-</div>
+    </div>
 
-<div class="preview-box">
-<div id="report">
-  <div class="header">POLICE REPORT</div>
-  <hr>
-  <div id="preview"></div>
-</div>
-</div>
-
+  </div>
 </div>
 
 <script>
-function generate() {
-  document.getElementById("preview").innerHTML = `
-  <strong>Report Type:</strong> ${type.value}<br><br>
-  <strong>Officer:</strong> ${officer.value} (Badge ${badge.value})<br>
-  <strong>Suspect:</strong> ${suspect.value}<br>
-  <strong>Location:</strong> ${location.value}<br>
-  <strong>Date/Time:</strong> ${new Date().toLocaleString()}<br><br>
-  <strong>Narrative:</strong><br>${narrative.value.replace(/\n/g,"<br>")}
+/* CLOCK */
+setInterval(() => {
+  document.getElementById("clock").innerText =
+    new Date().toLocaleString();
+}, 1000);
+
+/* PAGES */
+function setPage(page) {
+  const title = {
+    arrest: "Arrest Report",
+    trespass: "Trespass Notice",
+    incident: "Incident Report",
+    uof: "Use of Force"
+  }[page] || "Dashboard";
+
+  document.getElementById("pageTitle").innerText = title;
+
+  if (page === "dashboard") {
+    formArea.innerHTML = "Select a report type from the left to begin.";
+    return;
+  }
+
+  formArea.innerHTML = `
+    <label>Subject Name</label>
+    <input id="suspect">
+
+    <label>Location</label>
+    <input id="location">
+
+    <label>Case Number</label>
+    <input id="case" value="RP-${Math.floor(Math.random()*100000)}">
+
+    <label>Narrative</label>
+    <textarea id="narrative" rows="6"></textarea>
   `;
 }
 
+/* PREVIEW */
+function generate() {
+  preview.innerHTML = `
+    <strong>Officer:</strong> ${officer.value} (Badge ${badge.value})<br>
+    <strong>Case #:</strong> ${case?.value || ""}<br>
+    <strong>Subject:</strong> ${suspect?.value || ""}<br>
+    <strong>Location:</strong> ${location?.value || ""}<br>
+    <strong>Date/Time:</strong> ${new Date().toLocaleString()}<br><br>
+    <strong>Narrative:</strong><br>
+    ${(narrative?.value || "").replace(/\n/g,"<br>")}
+  `;
+}
+
+/* UPLOAD */
 async function upload() {
   generate();
-  const report = document.getElementById("report");
-
   const canvas = await html2canvas(report, {scale:2});
   const image = canvas.toDataURL("image/png").split(",")[1];
 
@@ -140,12 +261,9 @@ async function upload() {
   });
 
   const data = await res.json();
-  if (data.success) {
-    document.getElementById("link").innerHTML =
-      `Uploaded: <a href="${data.data.link}" target="_blank">${data.data.link}</a>`;
-  } else {
-    document.getElementById("link").innerText = "Upload failed";
-  }
+  link.innerHTML = data.success
+    ? `<a href="${data.data.link}" target="_blank">${data.data.link}</a>`
+    : "Upload failed";
 }
 </script>
 
