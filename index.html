@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>FiveM RP Police Report Generator</title>
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<style>
+body {
+  font-family: Arial, sans-serif;
+  background: #1e1e1e;
+  color: #fff;
+  margin: 0;
+  padding: 20px;
+}
+.container {
+  display: flex;
+  gap: 20px;
+}
+.form-box, .preview-box {
+  background: #2b2b2b;
+  padding: 20px;
+  border-radius: 8px;
+  width: 50%;
+}
+label {
+  display: block;
+  margin-top: 10px;
+}
+input, textarea, select, button {
+  width: 100%;
+  margin-top: 5px;
+  padding: 8px;
+  border-radius: 4px;
+  border: none;
+}
+textarea {
+  resize: vertical;
+}
+button {
+  background: #3a7afe;
+  color: white;
+  font-weight: bold;
+  margin-top: 15px;
+  cursor: pointer;
+}
+#report {
+  background: white;
+  color: black;
+  padding: 20px;
+  font-size: 14px;
+}
+.header {
+  text-align: center;
+  font-weight: bold;
+  font-size: 18px;
+  margin-bottom: 10px;
+}
+hr {
+  margin: 10px 0;
+}
+.output {
+  margin-top: 10px;
+  word-break: break-all;
+}
+</style>
+</head>
+
+<body>
+
+<h2>FiveM RP Police Report Generator</h2>
+
+<div class="container">
+
+<div class="form-box">
+<label>Report Type</label>
+<select id="type">
+  <option>Arrest Report</option>
+  <option>Trespass Notice</option>
+  <option>Incident Report</option>
+  <option>Use of Force</option>
+</select>
+
+<label>Officer Name</label>
+<input id="officer">
+
+<label>Badge Number</label>
+<input id="badge">
+
+<label>Suspect Name</label>
+<input id="suspect">
+
+<label>Location</label>
+<input id="location">
+
+<label>Narrative</label>
+<textarea id="narrative" rows="6"></textarea>
+
+<button onclick="generate()">Generate Preview</button>
+<button onclick="upload()">Upload to Imgur</button>
+
+<div class="output" id="link"></div>
+</div>
+
+<div class="preview-box">
+<div id="report">
+  <div class="header">POLICE REPORT</div>
+  <hr>
+  <div id="preview"></div>
+</div>
+</div>
+
+</div>
+
+<script>
+function generate() {
+  document.getElementById("preview").innerHTML = `
+  <strong>Report Type:</strong> ${type.value}<br><br>
+  <strong>Officer:</strong> ${officer.value} (Badge ${badge.value})<br>
+  <strong>Suspect:</strong> ${suspect.value}<br>
+  <strong>Location:</strong> ${location.value}<br>
+  <strong>Date/Time:</strong> ${new Date().toLocaleString()}<br><br>
+  <strong>Narrative:</strong><br>${narrative.value.replace(/\n/g,"<br>")}
+  `;
+}
+
+async function upload() {
+  generate();
+  const report = document.getElementById("report");
+
+  const canvas = await html2canvas(report, {scale:2});
+  const image = canvas.toDataURL("image/png").split(",")[1];
+
+  const res = await fetch("https://api.imgur.com/3/image", {
+    method: "POST",
+    headers: {
+      Authorization: "Client-ID YOUR_IMGUR_CLIENT_ID",
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({ image })
+  });
+
+  const data = await res.json();
+  if (data.success) {
+    document.getElementById("link").innerHTML =
+      `Uploaded: <a href="${data.data.link}" target="_blank">${data.data.link}</a>`;
+  } else {
+    document.getElementById("link").innerText = "Upload failed";
+  }
+}
+</script>
+
+</body>
+</html>
