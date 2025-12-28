@@ -2,252 +2,237 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>RP CAD System</title>
+<title>SAST CAD</title>
 <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
-
 <style>
+:root {
+  --bg-color: #1b1b1b;
+  --text-color: #eee;
+  --card-bg: #2b2b2b;
+  --accent: #3a7afe;
+  --input-bg: #1e1e1e;
+}
+[data-theme="day"] {
+  --bg-color: #f5f5f5;
+  --text-color: #111;
+  --card-bg: #fff;
+  --accent: #3a7afe;
+  --input-bg: #e0e0e0;
+}
 body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: var(--bg-color);
+  color: var(--text-color);
   margin: 0;
-  font-family: "Segoe UI", Arial, sans-serif;
-  background: #1b1f23;
-  color: #e6e6e6;
+  padding: 0;
 }
-
-/* LAYOUT */
-.app {
-  display: flex;
-  height: 100vh;
-}
-
-.sidebar {
-  width: 220px;
-  background: #0f1419;
-  padding: 15px;
-  box-sizing: border-box;
-}
-
-.sidebar h2 {
-  font-size: 16px;
-  margin-bottom: 15px;
-  text-align: center;
-}
-
-.nav button {
-  width: 100%;
-  margin-bottom: 8px;
-  padding: 10px;
-  background: #1f2933;
-  border: none;
-  color: #fff;
-  text-align: left;
-  cursor: pointer;
-}
-
-.nav button:hover {
-  background: #32414d;
-}
-
-.main {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-}
-
-.topbar {
-  background: #101820;
-  padding: 10px 15px;
+header {
+  background: #222;
+  padding: 15px 20px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-size: 14px;
+  font-size: 24px;
+  font-weight: bold;
+  color: var(--accent);
+  border-bottom: 2px solid var(--accent);
 }
-
-.content {
-  flex: 1;
-  display: flex;
-  padding: 15px;
-  gap: 15px;
-  box-sizing: border-box;
+#time {
+  font-size: 16px;
+  font-weight: normal;
+  color: var(--text-color);
+  margin-right: 10px;
 }
-
-/* PANELS */
-.panel {
-  background: #242a30;
-  border-radius: 6px;
-  padding: 15px;
-  flex: 1;
-}
-
-.panel h3 {
-  margin-top: 0;
-  font-size: 15px;
-  border-bottom: 1px solid #3a3f44;
-  padding-bottom: 5px;
-}
-
-/* FORMS */
-label {
-  font-size: 12px;
-  margin-top: 10px;
-  display: block;
-}
-
-input, textarea, select {
-  width: 100%;
-  padding: 6px;
-  margin-top: 4px;
+.toggle-btn {
+  background: var(--accent);
   border: none;
-  border-radius: 4px;
-}
-
-textarea {
-  resize: vertical;
-}
-
-button.action {
-  margin-top: 12px;
-  padding: 10px;
-  background: #2563eb;
-  color: white;
-  border: none;
+  color: #fff;
+  padding: 5px 10px;
   border-radius: 4px;
   cursor: pointer;
+  font-weight: bold;
 }
-
-/* REPORT PREVIEW */
-#report {
-  background: white;
-  color: black;
+.container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 20px;
   padding: 20px;
-  font-size: 13px;
 }
-
-.report-header {
+.box {
+  background: var(--card-bg);
+  padding: 20px;
+  border-radius: 8px;
+  flex: 1 1 400px;
+  max-width: 600px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+}
+label {
+  display: block;
+  margin-top: 10px;
+}
+input, textarea, select, button {
+  width: 100%;
+  margin-top: 5px;
+  padding: 8px;
+  border-radius: 4px;
+  border: none;
+  background: var(--input-bg);
+  color: var(--text-color);
+}
+textarea { resize: vertical; }
+button.generate {
+  background: var(--accent);
+  color: white;
+  font-weight: bold;
+  margin-top: 15px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+button.generate:hover { background: #1e5eff; }
+#report {
+  background: var(--card-bg);
+  color: var(--text-color);
+  padding: 20px;
+  font-size: 14px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+}
+.header {
   text-align: center;
   font-weight: bold;
-  font-size: 16px;
+  font-size: 20px;
   margin-bottom: 10px;
+  color: var(--accent);
 }
-
-hr {
-  margin: 8px 0;
-}
+hr { margin: 10px 0; border: 1px solid #ccc; }
+.output { margin-top: 15px; word-break: break-word; color: var(--accent); }
+iframe { width: 100%; height: 400px; border: none; margin-top: 10px; border-radius: 6px; }
 </style>
 </head>
+<body data-theme="night">
 
-<body>
+<header>
+  SAST CAD
+  <div>
+    <span id="time"></span>
+    <button class="toggle-btn" onclick="toggleTheme()">Toggle Day/Night</button>
+  </div>
+</header>
 
-<div class="app">
+<div class="container">
 
-  <!-- SIDEBAR -->
-  <div class="sidebar">
-    <h2>RP CAD</h2>
-    <div class="nav">
-      <button onclick="setPage('dashboard')">Dashboard</button>
-      <button onclick="setPage('arrest')">Arrest Report</button>
-      <button onclick="setPage('trespass')">Trespass Notice</button>
-      <button onclick="setPage('incident')">Incident Report</button>
-      <button onclick="setPage('uof')">Use of Force</button>
+  <!-- Reports Box -->
+  <div class="box">
+    <label>Choose Report Type</label>
+    <select id="reportType" onchange="loadForm()">
+      <option value="arrest">Arrest Report</option>
+      <option value="trespass">Trespass Notice</option>
+      <option value="incident">Incident Report</option>
+      <option value="force">Use of Force</option>
+    </select>
+    <div id="form-content"></div>
+    <button class="generate" onclick="upload()">Upload to Imgur</button>
+    <div class="output" id="link"></div>
+  </div>
+
+  <!-- Preview Box -->
+  <div class="box">
+    <div id="report">
+      <div class="header">Generated Report</div>
+      <hr>
+      <div id="preview">Preview will appear here</div>
     </div>
   </div>
 
-  <!-- MAIN -->
-  <div class="main">
-
-    <!-- TOP BAR -->
-    <div class="topbar">
-      <div>
-        Officer: <input id="officer" placeholder="Name" style="width:140px">
-        Badge: <input id="badge" placeholder="#" style="width:80px">
-      </div>
-      <div id="clock"></div>
-    </div>
-
-    <!-- CONTENT -->
-    <div class="content">
-
-      <!-- FORM PANEL -->
-      <div class="panel">
-        <h3 id="pageTitle">Dashboard</h3>
-
-        <div id="formArea">
-          Select a report type from the left to begin.
-        </div>
-
-        <button class="action" onclick="generate()">Generate Preview</button>
-        <button class="action" onclick="upload()">Upload to Imgur</button>
-        <div id="link"></div>
-      </div>
-
-      <!-- PREVIEW PANEL -->
-      <div class="panel">
-        <h3>Report Preview</h3>
-        <div id="report">
-          <div class="report-header">RP POLICE REPORT</div>
-          <hr>
-          <div id="preview"></div>
-        </div>
-      </div>
-
-    </div>
-
+  <!-- Documents Box -->
+  <div class="box">
+    <div class="header">SAST Documents</div>
+    <a href="#" onclick="loadDoc('https://drive.google.com/drive/folders/1NdlwfYhK0Pu5hZ2FeLSB39xGkcv8Wo6h?usp=sharing')">Open Document Folder</a>
+    <iframe id="docFrame"></iframe>
   </div>
+
+  <!-- Roster Box -->
+  <div class="box">
+    <div class="header">SAST Roster</div>
+    <iframe src="https://docs.google.com/spreadsheets/d/1v3jbD_9itIsc7wRLc8yHK52sDGYss1LV7I-Wu1kJfls/preview"></iframe>
+  </div>
+
+  <!-- Public Law / Charges Box -->
+  <div class="box">
+    <div class="header">State & Federal Charges</div>
+    <iframe src="https://docs.google.com/spreadsheets/d/1XvDGf6q1QcnUfrnKHJPX4h5r8s7-M5eSu4vhH7_28xc/preview"></iframe>
+  </div>
+
 </div>
 
 <script>
-/* CLOCK */
-setInterval(() => {
-  document.getElementById("clock").innerText =
-    new Date().toLocaleString();
-}, 1000);
+const forms = {
+  arrest: `
+    <label>Officer Name</label><input id="officer">
+    <label>Badge Number</label><input id="badge">
+    <label>Suspect Name</label><input id="suspect">
+    <label>Location</label><input id="location">
+    <label>Charges</label><input id="charges">
+    <label>Narrative</label><textarea id="narrative" rows="6"></textarea>
+    <button class="generate" onclick="generate('Arrest Report')">Generate Preview</button>
+  `,
+  trespass: `
+    <label>Officer Name</label><input id="officer">
+    <label>Badge Number</label><input id="badge">
+    <label>Person Name</label><input id="suspect">
+    <label>Location</label><input id="location">
+    <label>Reason</label><input id="charges">
+    <label>Narrative</label><textarea id="narrative" rows="4"></textarea>
+    <button class="generate" onclick="generate('Trespass Notice')">Generate Preview</button>
+  `,
+  incident: `
+    <label>Officer Name</label><input id="officer">
+    <label>Badge Number</label><input id="badge">
+    <label>Involved Persons</label><input id="suspect">
+    <label>Location</label><input id="location">
+    <label>Incident Type</label><input id="charges">
+    <label>Narrative</label><textarea id="narrative" rows="6"></textarea>
+    <button class="generate" onclick="generate('Incident Report')">Generate Preview</button>
+  `,
+  force: `
+    <label>Officer Name</label><input id="officer">
+    <label>Badge Number</label><input id="badge">
+    <label>Suspect Name</label><input id="suspect">
+    <label>Location</label><input id="location">
+    <label>Force Used</label><input id="charges">
+    <label>Narrative</label><textarea id="narrative" rows="6"></textarea>
+    <button class="generate" onclick="generate('Use of Force Report')">Generate Preview</button>
+  `
+};
 
-/* PAGES */
-function setPage(page) {
-  const title = {
-    arrest: "Arrest Report",
-    trespass: "Trespass Notice",
-    incident: "Incident Report",
-    uof: "Use of Force"
-  }[page] || "Dashboard";
-
-  document.getElementById("pageTitle").innerText = title;
-
-  if (page === "dashboard") {
-    formArea.innerHTML = "Select a report type from the left to begin.";
-    return;
-  }
-
-  formArea.innerHTML = `
-    <label>Subject Name</label>
-    <input id="suspect">
-
-    <label>Location</label>
-    <input id="location">
-
-    <label>Case Number</label>
-    <input id="case" value="RP-${Math.floor(Math.random()*100000)}">
-
-    <label>Narrative</label>
-    <textarea id="narrative" rows="6"></textarea>
-  `;
+function loadForm() {
+  const type = document.getElementById('reportType').value;
+  document.getElementById('form-content').innerHTML = forms[type];
+  document.getElementById('preview').innerHTML = "Preview will appear here";
+  document.getElementById('link').innerHTML = "";
 }
 
-/* PREVIEW */
-function generate() {
-  preview.innerHTML = `
-    <strong>Officer:</strong> ${officer.value} (Badge ${badge.value})<br>
-    <strong>Case #:</strong> ${case?.value || ""}<br>
-    <strong>Subject:</strong> ${suspect?.value || ""}<br>
-    <strong>Location:</strong> ${location?.value || ""}<br>
+function generate(type) {
+  const officer = document.getElementById('officer')?.value || '';
+  const badge = document.getElementById('badge')?.value || '';
+  const suspect = document.getElementById('suspect')?.value || '';
+  const location = document.getElementById('location')?.value || '';
+  const charges = document.getElementById('charges')?.value || '';
+  const narrative = document.getElementById('narrative')?.value || '';
+  document.getElementById('preview').innerHTML = `
+    <strong>Report Type:</strong> ${type}<br><br>
+    <strong>Officer:</strong> ${officer} (Badge ${badge})<br>
+    ${suspect ? `<strong>Suspect/Person:</strong> ${suspect}<br>` : ''}
+    <strong>Location:</strong> ${location}<br>
+    ${charges ? `<strong>Details:</strong> ${charges}<br>` : ''}
     <strong>Date/Time:</strong> ${new Date().toLocaleString()}<br><br>
-    <strong>Narrative:</strong><br>
-    ${(narrative?.value || "").replace(/\n/g,"<br>")}
+    <strong>Narrative:</strong><br>${narrative.replace(/\n/g,"<br>")}
   `;
 }
 
-/* UPLOAD */
 async function upload() {
-  generate();
+  const report = document.getElementById("report");
   const canvas = await html2canvas(report, {scale:2});
   const image = canvas.toDataURL("image/png").split(",")[1];
 
@@ -261,11 +246,31 @@ async function upload() {
   });
 
   const data = await res.json();
-  link.innerHTML = data.success
-    ? `<a href="${data.data.link}" target="_blank">${data.data.link}</a>`
-    : "Upload failed";
+  if (data.success) {
+    document.getElementById("link").innerHTML =
+      `Uploaded: <a href="${data.data.link}" target="_blank">${data.data.link}</a>`;
+  } else {
+    document.getElementById("link").innerText = "Upload failed";
+  }
 }
-</script>
 
+function toggleTheme() {
+  document.body.dataset.theme = document.body.dataset.theme === 'night' ? 'day' : 'night';
+}
+
+function updateTime() {
+  const now = new Date();
+  document.getElementById('time').innerText = now.toLocaleTimeString();
+}
+setInterval(updateTime, 1000);
+updateTime();
+
+function loadDoc(url) {
+  document.getElementById('docFrame').src = url;
+}
+
+// Initialize
+loadForm();
+</script>
 </body>
 </html>
